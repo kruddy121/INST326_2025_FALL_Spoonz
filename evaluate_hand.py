@@ -4,7 +4,7 @@ def evaluate_hand_strength(hand):
     """
     Evaluates a 4-card hand for Spoons and returns its strength category.
     """
-    counts = Counter([card[:-1] for card in hand])  # Count ranks only
+    counts = Counter([card[:-1] for card in hand])  # Counts ranks only
     values = sorted(counts.values(), reverse=True)
 
     if values == [4]:
@@ -20,6 +20,4 @@ def evaluate_hand_strength(hand):
     
     return category
 
-# Example test
-if __name__ == "__main__":
-    print(evaluate_hand_strength(["7H", "7D", "7S", "2C"]))  # should print 'three of a kind'
+
