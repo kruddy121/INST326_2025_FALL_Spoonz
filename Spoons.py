@@ -1,262 +1,213 @@
-from collections import Counter
 import random
+from collections import Counter
 
-# ranks and suits for making the deck
-RANKS = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
-SUITS = ["H","D","C","S"]
 
-# evaluates how strong a hand is
-def evaluate_hand_strength(hand):
-    counts = Counter([card[:-1] for card in hand])  # count ranks only
-    values = sorted(counts.values(), reverse=True)
+# Card class
 
-    if values == [4]:
-        return "four of a kind"
-    elif values == [3,1]:
-        return "three of a kind"
-    elif values == [2,2]:
-        return "two pair"
-    elif values == [2,1,1]:
-        return "one pair"
-    else:
-        return "high card"
+class Card:
+    RANKS = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
+    SUITS = ["H","D","C","S"]
 
-# passes one chosen card from each player to the left
-# last player’s card goes into a discard pile
-# (helper function, not used in the main loop)
-def pass_cards_left(hands, cards_to_pass):
-    num_players = len(hands)
+    def __init__(self, rank, suit):
+        self.rank = rank
+        self.suit = suit
 
-    if len(cards_to_pass) != num_players:
-        raise ValueError("each player must pass exactly one card")
+    def __str__(self):
+        return f"{self.rank}{self.suit}"
 
-    for i in range(num_players):
-        if cards_to_pass[i] not in hands[i]:
-            raise ValueError("player cannot pass a card they dont have")
-        hands[i].remove(cards_to_pass[i])
+    def __repr__(self):
+        return str(self)
 
-    for i in range(1, num_players):
-        hands[i].append(cards_to_pass[i-1])
 
-    discarded_card = cards_to_pass[-1]
-    return hands, discarded_card
+# Deck class
 
-# handles spoon event when someone gets four of a kind
-def spoon_event(hands):
-    trigger = None
-    for player, cards in hands.items():
-        ranks = [card[:-1] for card in cards]
-        if 4 in Counter(ranks).values():
-            trigger = player
-            break
+class Deck:
+    def __init__(self):
+        self.cards = [Card(rank, suit) for rank in Card.RANKS for suit in Card.SUITS]
+        random.shuffle(self.cards)
 
-    if trigger is None:
-        raise ValueError("no one has four of a kind")
+    def draw(self):
+        if not self.cards:
+            return None
+        return self.cards.pop()
 
-    players = list(hands.keys())
-    total_spoons = len(players) - 1
-    spoon_receivers = {trigger}
+    def add_cards(self, cards):
+        self.cards.extend(cards)
+        random.shuffle(self.cards)
 
-    strength = {}
-    for player, cards in hands.items():
-        if player == trigger:
-            continue
-        ranks = [card[:-1] for card in cards]
-        strength[player] = max(Counter(ranks).values())
 
-    ranked = sorted(
-        strength.keys(),
-        key=lambda p: (strength[p], random.random()),
-        reverse=True
-    )
+# Player class
+class Player:
+    def __init__(self, name, is_human=False):
+        self.name = name
+        self.is_human = is_human
+        self.hand = []
 
-    for p in ranked:
-        if len(spoon_receivers) < total_spoons:
-            spoon_receivers.add(p)
+    def draw_card(self, deck):
+        card = deck.draw()
+        if card:
+            self.hand.append(card)
+        return card
 
-    no_spoon = (set(players) - spoon_receivers).pop()
+    def choose_card_to_pass(self):
+        ranks = [card.rank for card in self.hand]
+        counts = Counter(ranks)
+        lowest_count = min(counts[r] for r in counts)
+        candidate_ranks = [r for r in counts if counts[r] == lowest_count]
+        chosen_rank = random.choice(candidate_ranks)
+        for card in self.hand:
+            if card.rank == chosen_rank:
+                return card
 
-    return {
-        "trigger": trigger,
-        "spoons": list(spoon_receivers),
-        "no_spoon": no_spoon
-    }
+    def remove_card(self, card):
+        self.hand.remove(card)
 
-# updates letters and eliminates players at 5 letters
-def update_score_and_eliminate(scores, missed):
-    scores[missed] += 1
-    eliminated = []
+    def evaluate_hand_strength(self):
+        counts = Counter([card.rank for card in self.hand])
+        values = sorted(counts.values(), reverse=True)
+        if values == [4]:
+            return "four of a kind"
+        elif values == [3,1]:
+            return "three of a kind"
+        elif values == [2,2]:
+            return "two pair"
+        elif values == [2,1,1]:
+            return "one pair"
+        else:
+            return "high card"
 
-    for player, value in list(scores.items()):
-        if value >= 5:
-            eliminated.append(player)
-            del scores[player]
 
-    return scores, eliminated
+# Game class
 
-# makes a shuffled deck
-def create_deck():
-    deck = [rank + suit for rank in RANKS for suit in SUITS]
-    random.shuffle(deck)
-    return deck
+class SpoonsGame:
+    def __init__(self):
+        self.players = []
+        self.scores = {}
+        self.round_num = 1
+        self.discard_pile = []
 
-# deals 4-card starting hands
-def deal_hands(players):
-    deck = create_deck()
-    hands = {}
-    for p in players:
-        hands[p] = [deck.pop() for _ in range(4)]
-    return hands, deck
+    def setup_players(self):
+        while True:
+            try:
+                num = int(input("How many total players? (2-6): "))
+                if 2 <= num <= 6:
+                    break
+                print("Enter a number between 2 and 6")
+            except ValueError:
+                print("Enter a valid number")
 
-# chooses which card a computer player will pass or discard
-def choose_cpu_pass_card(hand):
-    ranks = [card[:-1] for card in hand]
-    counts = Counter(ranks)
-    lowest_count = min(counts[r] for r in counts)
-    candidate_ranks = [r for r in counts if counts[r] == lowest_count]
-    chosen_rank = random.choice(candidate_ranks)
-    for card in hand:
-        if card[:-1] == chosen_rank:
-            return card
+        human_name = input("Your name: ").strip()
+        if not human_name:
+            human_name = "You"
 
-# main spoons game loop (you vs computer players)
-def run_game():
-    print("=== SPOONS GAME: YOU VS COMPUTERS ===")
+        self.players.append(Player(human_name, is_human=True))
+        for i in range(2, num+1):
+            self.players.append(Player(f"CPU{i-1}"))
 
-    # number of players (1 human + rest cpu)
-    while True:
-        try:
-            num = int(input("how many total players? (2-6): "))
-            if 2 <= num <= 6:
-                break
-            else:
-                print("enter a number between 2 and 6")
-        except ValueError:
-            print("enter a valid number")
+        self.scores = {p.name: 0 for p in self.players}
 
-    human_name = input("your name: ").strip()
-    if not human_name:
-        human_name = "you"
+    def deal_hands(self, deck):
+        for player in self.players:
+            player.hand = [deck.draw() for _ in range(4)]
 
-    players = [human_name]
-    for i in range(2, num + 1):
-        players.append(f"cpu{i-1}")
-
-    scores = {p: 0 for p in players}
-    round_num = 1
-
-    while len(scores) > 1:
-        print(f"\n=== round {round_num} ===")
-        for p in scores:
-            print(f"{p}: {scores[p]} letters")
-
-        active = list(scores.keys())
-        hands, deck = deal_hands(active)
-        discard = []
-        triggered = False
-
-        # keep passing until someone gets four of a kind
-        while not triggered:
-            print("\nhands:")
-            for p in active:
-                print(f"{p}: {hands[p]}")
-
-            # one card will travel around the table
-            pass_card = None
-
-            for i, p in enumerate(active):
-                # first player draws from deck
-                if i == 0:
-                    if not deck:
-                        if discard:
-                            deck = discard
-                            discard = []
-                            random.shuffle(deck)
-                        else:
-                            forced = random.choice(active)
-                            rank = hands[forced][0][:-1]
-                            hands[forced] = [rank + s for s in SUITS[:4]]
-                            triggered = True
-                            break
-
-                    drawn = deck.pop()
-                    hands[p].append(drawn)  # now 5 cards
-
-                    if p == human_name:
-                        print(f"\n{p} drew {drawn}")
-                        print("your hand:", hands[p])
-                        choice = input("pass which card? ").strip().upper()
-                        while choice not in hands[p]:
-                            choice = input("invalid card, try again: ").strip().upper()
-                    else:
-                        choice = choose_cpu_pass_card(hands[p])
-                        print(f"\n{p} drew {drawn} and will pass {choice}")
-
-                    hands[p].remove(choice)
-                    pass_card = choice  # goes to next player
-
-                else:
-                    # receive card from previous player
-                    hands[p].append(pass_card)  # now 5 cards
-
-                    # last player discards to pile
-                    if i == len(active) - 1:
-                        if p == human_name:
-                            print(f"\n{p} received {pass_card}")
-                            print("your hand:", hands[p])
-                            choice = input("discard which card? ").strip().upper()
-                            while choice not in hands[p]:
-                                choice = input("invalid card, try again: ").strip().upper()
-                        else:
-                            choice = choose_cpu_pass_card(hands[p])
-                            print(f"\n{p} received {pass_card} and will discard {choice}")
-
-                        hands[p].remove(choice)
-                        discard.append(choice)
-                        pass_card = None
-                    else:
-                        # middle players pass to the next
-                        if p == human_name:
-                            print(f"\n{p} received {pass_card}")
-                            print("your hand:", hands[p])
-                            choice = input("pass which card? ").strip().upper()
-                            while choice not in hands[p]:
-                                choice = input("invalid card, try again: ").strip().upper()
-                        else:
-                            choice = choose_cpu_pass_card(hands[p])
-                            print(f"\n{p} received {pass_card} and will pass {choice}")
-
-                        hands[p].remove(choice)
-                        pass_card = choice  # goes to next player
-
-            if triggered:
+    def spoon_event(self):
+        trigger = None
+        for player in self.players:
+            if player.evaluate_hand_strength() == "four of a kind":
+                trigger = player
                 break
 
-            # check for any four of a kind after full table pass
-            if any(evaluate_hand_strength(h) == "four of a kind" for h in hands.values()):
-                triggered = True
+        if not trigger:
+            raise ValueError("No one has four of a kind")
 
-        print("\n--- SPOON EVENT ---")
-        result = spoon_event(hands)
-        trigger = result["trigger"]
-        spoons = result["spoons"]
-        missed = result["no_spoon"]
+        total_spoons = len(self.players) - 1
+        spoon_receivers = {trigger.name}
 
-        print(f"{trigger} triggered the event")
-        print("got spoons:", ", ".join(spoons))
-        print("missed spoon:", missed)
+        strength = {}
+        for player in self.players:
+            if player == trigger:
+                continue
+            strength[player.name] = max(Counter([c.rank for c in player.hand]).values())
 
-        scores, eliminated = update_score_and_eliminate(scores, missed)
+        ranked = sorted(strength.keys(), key=lambda p: (strength[p], random.random()), reverse=True)
+        for p in ranked:
+            if len(spoon_receivers) < total_spoons:
+                spoon_receivers.add(p)
 
-        if eliminated:
-            print("eliminated:", ", ".join(eliminated))
+        no_spoon = (set([p.name for p in self.players]) - spoon_receivers).pop()
+        return {"trigger": trigger.name, "spoons": list(spoon_receivers), "no_spoon": no_spoon}
 
-        round_num += 1
+    def update_score_and_eliminate(self, missed):
+        self.scores[missed] += 1
+        eliminated = [p for p, score in list(self.scores.items()) if score >= 5]
+        for p in eliminated:
+            del self.scores[p]
+        return eliminated
 
-    winner = list(scores.keys())[0]
-    print("\n=== GAME OVER ===")
-    print("winner:", winner)
+    def run(self):
+        print("=== SPOONS GAME ===")
+        self.setup_players()
+
+        while len(self.scores) > 1:
+            print(f"\n=== Round {self.round_num} ===")
+            for p, score in self.scores.items():
+                print(f"{p}: {score} letters")
+
+            deck = Deck()
+            self.deal_hands(deck)
+            triggered = False
+
+            while not triggered:
+                pass_card = None
+                for i, player in enumerate(self.players):
+                    if player.name not in self.scores:
+                        continue
+
+                    if i == 0:
+                        drawn = player.draw_card(deck)
+                        if player.is_human:
+                            print(f"\nYou drew {drawn}")
+                            print("Your hand:", player.hand)
+                            choice_input = input("Pass which card? ").upper()
+                            while choice_input not in [str(c) for c in player.hand]:
+                                choice_input = input("Invalid card. Try again: ").upper()
+                            choice = next(c for c in player.hand if str(c) == choice_input)
+                        else:
+                            choice = player.choose_card_to_pass()
+                        player.remove_card(choice)
+                        pass_card = choice
+                    else:
+                        player.hand.append(pass_card)
+                        if i == len(self.players) - 1:
+                            choice = player.choose_card_to_pass()
+                            player.remove_card(choice)
+                            self.discard_pile.append(choice)
+                            pass_card = None
+                        else:
+                            choice = player.choose_card_to_pass()
+                            player.remove_card(choice)
+                            pass_card = choice
+
+                if any(p.evaluate_hand_strength() == "four of a kind" for p in self.players if p.name in self.scores):
+                    triggered = True
+
+            print("\n--- SPOON EVENT ---")
+            result = self.spoon_event()
+            print(f"{result['trigger']} triggered the event")
+            print("Got spoons:", ", ".join(result['spoons']))
+            print("Missed spoon:", result['no_spoon'])
+
+            eliminated = self.update_score_and_eliminate(result['no_spoon'])
+            if eliminated:
+                print("Eliminated:", ", ".join(eliminated))
+
+            self.round_num += 1
+
+        winner = list(self.scores.keys())[0]
+        print("\n=== GAME OVER ===")
+        print("Winner:", winner)
 
 
 if __name__ == "__main__":
-    run_game()
+    game = SpoonsGame()
+    game.run()

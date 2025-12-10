@@ -54,11 +54,11 @@ class Player:
    def choose_card_human(self):
        print(f"\nYour hand: {self.show_hand()}")
        while True:
-           chosen = input("Choose a card to pass (e.g. '10H'): ").strip()
+           chosen = input("Choose a card to pass: ").strip()
            for c in self.hand:
                if str(c) == chosen:
                    return c
-           print("❌ Invalid — choose EXACTLY a card in your hand.")
+           print("Invalid — choose EXACTLY a card in your hand.")
 
 
    # -----------------------
@@ -99,23 +99,21 @@ class Player:
    # REACTION TIME LOGIC
    # -----------------------
    def reaction_time(self, human_has_4=False):
-       if self.is_human:
-           print("\n🚨🚨🚨 GRAB NOW!!! Type 'grab' FAST:")
-           t0 = time.time()
-           text = input(">>> ").strip().lower()
-           t1 = time.time()
-           if text != "grab":
-               return float("inf")
-           return t1 - t0
-
+    if self.is_human:
+        print("\n🚨 FOUR-OF-A-KIND! Type 'grab' FAST:")
+        t0 = time.time()
+        text = input(">>> ").strip().lower()
+        t1 = time.time()
+        if text != "grab":
+            return float("inf")
+        # boost human slightly to compete with bots
+        return max(0.25, t1 - t0)
 
        # bots
-       base = random.uniform(0.2, 1.1)
-       if self.has_four_kind():
-           base *= 0.8
-       if self.name == "Bot1":
-           base *= 0.95
-       return base
+    base = random.uniform(0.3, 1.2)  # slightly slower and more variable
+    if self.has_four_kind():
+        base *= random.uniform(0.85, 0.95)  # less guaranteed boost
+    return base
 
 
 # ============================================================
