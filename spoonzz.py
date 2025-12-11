@@ -3,9 +3,9 @@ import time
 from collections import Counter
 
 
-# ============================================================
+# 
 # CARD CLASS
-# ============================================================
+# 
 class Card:
    def __init__(self, rank, suit):
        self.rank = rank

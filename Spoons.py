@@ -1,9 +1,9 @@
 import random
 from collections import Counter
 
-# ===============================
+
 # Card class
-# ===============================
+
 class Card:
     RANKS = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
     SUITS = ["H","D","C","S"]
@@ -18,9 +18,7 @@ class Card:
     def __repr__(self):
         return str(self)
 
-# ===============================
 # Deck class
-# ===============================
 class Deck:
     def __init__(self):
         self.cards = [Card(rank, suit) for rank in Card.RANKS for suit in Card.SUITS]
@@ -35,9 +33,7 @@ class Deck:
         self.cards.extend(cards)
         random.shuffle(self.cards)
 
-# ===============================
 # Player class
-# ===============================
 class Player:
     def __init__(self, name, is_human=False):
         self.name = name
@@ -77,9 +73,9 @@ class Player:
         else:
             return "high card"
 
-# ===============================
+
 # Game class
-# ===============================
+
 class SpoonsGame:
     def __init__(self):
         self.players = []
