@@ -20,13 +20,11 @@ def evaluate_hand_strength(hand):
     """
     Determine the strength of a 4-card hand by counting matching ranks.
 
-    Parameters
-    ----------
+    Parameters:
     hand : list[Card]
         The player's current 4-card hand.
 
-    Returns
-    -------
+    Returns:
     str
         One of: 'four of a kind', 'three of a kind',
         'two pair', 'one pair', or 'high card'.
@@ -328,8 +326,7 @@ class SpoonsGame:
         """
         Deal four cards to each player from the deck.
 
-        Parameters
-        ----------
+        Parameters:
         deck : Deck
             The deck to deal from.
         """
