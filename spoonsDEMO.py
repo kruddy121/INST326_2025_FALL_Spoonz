@@ -5,9 +5,15 @@ from collections import Counter
 
 #  CARD CLASS 
 class Card:
+    """Represents a single playing card."""
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
+        """
+        Args:
+            rank (str): The rank of the card
+            suit (str): The suit of the card
+        """
 
     def __repr__(self):
         return f"{self.rank}{self.suit}"
