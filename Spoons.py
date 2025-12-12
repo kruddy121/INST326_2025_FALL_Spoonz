@@ -30,6 +30,14 @@ def evaluate_hand_strength(hand):
     str
         One of: 'four of a kind', 'three of a kind',
         'two pair', 'one pair', or 'high card'.
+
+    Primary Author
+    --------------
+    Juanita Asenso
+
+    Techniques Claimed
+    ------------------
+    comprehensions or generator expressions
     """
     ranks = [card.rank for card in hand]
     counts = Counter(ranks)
@@ -68,6 +76,14 @@ def spoon_event(players, trigger_name):
         - 'spoons': list of players who got spoons
         - 'no_spoon': player who missed a spoon
         - 'reaction_times': dict mapping player name -> time in seconds
+
+    Primary Author
+    --------------
+    Ayushi Bhola
+
+    Techniques Claimed
+    ------------------
+    use of a key function (which can be a lambda expression) with one of the following commands: list.sort(), sorted(), min(), or max()
     """
     total_spoons = len(players) - 1
     reaction_times = {}
@@ -129,6 +145,14 @@ def update_score_and_eliminate(scores, player_missed):
     -------
     tuple[dict[str, int], list[str]]
         Updated scores dictionary and list of eliminated players.
+
+    Primary Author
+    --------------
+    Juanita Asenso
+
+    Techniques Claimed
+    ------------------
+    None
     """
     scores[player_missed] += 1
     eliminated = []
@@ -165,6 +189,17 @@ class Card:
         self.suit = suit
 
     def __str__(self):
+        """
+        Return a short string representation of the card (rank + suit).
+
+        Primary Author
+        --------------
+        Tylor Davis
+
+        Techniques Claimed
+        ------------------
+        f-strings containing expressions
+        """
         return f"{self.rank}{self.suit}"
 
     def __repr__(self):
@@ -212,6 +247,17 @@ class Deck:
         return self.cards.pop() if self.cards else None
 
     def __len__(self):
+        """
+        Return the number of cards remaining in the deck.
+
+        Primary Author
+        --------------
+        Michael Miceli
+
+        Techniques Claimed
+        ------------------
+        magic methods other than __init__()
+        """
         return len(self.cards)
 
 
@@ -230,6 +276,17 @@ class Player:
     """
 
     def __init__(self, name, is_human=False):
+        """
+        Create a Player with a name and control type.
+
+        Primary Author
+        --------------
+        Michael Miceli
+
+        Techniques Claimed
+        ------------------
+        optional parameters and/or keyword arguments
+        """
         self.name = name
         self.is_human = is_human
         self.hand = []
@@ -261,6 +318,14 @@ class Player:
         - Count how many of each rank are in the hand.
         - Find the least common rank(s).
         - Pass one card of a least-common rank.
+
+        Primary Author
+        --------------
+        Tylor Davis
+
+        Techniques Claimed
+        ------------------
+        use of a key function (which can be a lambda expression) with one of the following commands: list.sort(), sorted(), min(), or max()
         """
         ranks = [c.rank for c in self.hand]
         counts = Counter(ranks)
@@ -352,6 +417,14 @@ class SpoonsGame:
     def run(self):
         """
         Run the main game loop until only one player remains.
+
+        Primary Author
+        --------------
+        Ayushi Bhola
+
+        Techniques Claimed
+        ------------------
+        composition of two custom classes
         """
         print("=== SPOONS GAME ===")
         self.setup_players()
