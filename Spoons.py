@@ -1,12 +1,12 @@
 """
-Spoons Game — INST326 Final Project Edition
+Spoons Game: INST326 Final Project Edition
 
 Text-based version of the card game Spoons.
 
 Features:
 - Object-oriented design (Card, Deck, Player, SpoonsGame)
 - Helper functions for hand evaluation, spoon event, and scoring
-- Passing pipeline where players go 4 -> 5 -> 4 cards each cycle
+- Passing pipeline where players go 4 to 5 to 4 cards each cycle
 - Reaction-based spoon scramble (press 'g' as fast as possible)
 - Deck uses only 10, J, Q, K, A, but with two copies of each card
 """
@@ -53,15 +53,15 @@ def spoon_event(players, trigger_name):
     The human must press 'g' after the 'GO!' signal as fast as possible.
     CPU players get randomized reaction times to keep it competitive.
 
-    Parameters
-    ----------
+    Parameters:
+  
     players : list[Player]
         All active players still in the game.
     trigger_name : str
         Name of the player who achieved four-of-a-kind.
 
-    Returns
-    -------
+    Returns:
+    
     dict
         Dictionary with:
         - 'trigger': player who triggered the event
@@ -118,15 +118,13 @@ def update_score_and_eliminate(scores, player_missed):
     """
     Increase the missed player's letter count and remove them if they reach 5.
 
-    Parameters
-    ----------
+    Parameters:
     scores : dict[str, int]
         Mapping of player name -> letter count.
     player_missed : str
         Player who did not get a spoon during this event.
 
-    Returns
-    -------
+    Returns: 
     tuple[dict[str, int], list[str]]
         Updated scores dictionary and list of eliminated players.
     """
@@ -145,8 +143,8 @@ class Card:
     """
     A playing card used in the game.
 
-    Attributes
-    ----------
+    Attributes:
+    
     rank : str
         Card rank: '10', 'J', 'Q', 'K', or 'A'.
     suit : str
@@ -184,8 +182,8 @@ class Deck:
     Uses only the ranks 10, J, Q, K, A, but has two copies of each
     card in each suit (40 cards total) so there are always cards to draw.
 
-    Methods
-    -------
+    Methods:
+    
     draw()
         Draw a card from the deck.
     __len__()
@@ -204,8 +202,8 @@ class Deck:
         """
         Draw a single card from the deck.
 
-        Returns
-        -------
+        Returns:
+        
         Card or None
             The drawn card, or None if the deck is empty.
         """
@@ -219,8 +217,8 @@ class Player:
     """
     Represents a human or CPU player.
 
-    Attributes
-    ----------
+    Attributes:
+    
     name : str
         Player's display name.
     is_human : bool
@@ -238,13 +236,12 @@ class Player:
         """
         Draw a card from the deck and add it to this player's hand.
 
-        Parameters
-        ----------
+        Parameters:
+        
         deck : Deck
             Deck to draw from.
 
-        Returns
-        -------
+        Returns:
         Card or None
             The drawn card, if there is one.
         """
@@ -276,8 +273,8 @@ class Player:
         """
         Compute this player's hand strength using the shared helper.
 
-        Returns
-        -------
+        Returns:
+        
         str
             Category label for the hand strength.
         """
@@ -343,8 +340,8 @@ class SpoonsGame:
         """
         Players still in the game (not eliminated).
 
-        Returns
-        -------
+        Returns:
+        
         list[Player]
         """
         return [p for p in self.players if p.name in self.scores]
