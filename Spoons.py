@@ -29,13 +29,11 @@ def evaluate_hand_strength(hand):
         One of: 'four of a kind', 'three of a kind',
         'two pair', 'one pair', or 'high card'.
 
-    Primary Author
-    --------------
+    Primary Author:
     Juanita Asenso
 
-    Techniques Claimed
-    ------------------
-    comprehensions or generator expressions
+    Techniques:
+    sorting with arguments
     """
     ranks = [card.rank for card in hand]
     counts = Counter(ranks)
@@ -75,12 +73,10 @@ def spoon_event(players, trigger_name):
         - 'no_spoon': player who missed a spoon
         - 'reaction_times': dict mapping player name -> time in seconds
 
-    Primary Author
-    --------------
+    Primary Author:
     Ayushi Bhola
 
-    Techniques Claimed
-    ------------------
+    Techniques Claimed:
     use of a key function (lambda) with sorted()
     """
     total_spoons = len(players) - 1
@@ -134,7 +130,7 @@ def update_score_and_eliminate(scores, player_missed):
 
     Parameters:
     scores : dict[str, int]
-        Mapping of player name -> letter count.
+        Mapping of player name to letter count.
     player_missed : str
         Player who did not get a spoon during this event.
 
@@ -142,12 +138,10 @@ def update_score_and_eliminate(scores, player_missed):
     tuple[dict[str, int], list[str]]
         Updated scores dictionary and list of eliminated players.
 
-    Primary Author
-    --------------
+    Primary Author:
     Juanita Asenso
 
-    Techniques Claimed
-    ------------------
+    Techniques Claimed:
     sequence unpacking
     """
     scores[player_missed] += 1
@@ -172,12 +166,10 @@ class Card:
     suit : str
         Suit: 'H', 'D', 'C', or 'S'.
 
-    Primary Author
-    --------------
+    Primary Author:
     Tylor Davis
 
-    Techniques Claimed
-    ------------------
+    Techniques Claimed:
     None
     """
 
@@ -188,12 +180,10 @@ class Card:
         """
         Create a Card with a validated rank and suit.
 
-        Primary Author
-        --------------
+        Primary Author:
         Tylor Davis
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         None
         """
         if rank not in Card.RANKS:
@@ -207,12 +197,10 @@ class Card:
         """
         Return a short string representation of the card (rank + suit).
 
-        Primary Author
-        --------------
+        Primary Author:
         Tylor Davis
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         f-strings containing expressions
         """
         return f"{self.rank}{self.suit}"
@@ -221,12 +209,10 @@ class Card:
         """
         Developer-friendly representation (same as __str__).
 
-        Primary Author
-        --------------
+        Primary Author:
         Tylor Davis
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         None
         """
         return str(self)
@@ -235,12 +221,10 @@ class Card:
         """
         Compare two cards for equality by rank and suit.
 
-        Primary Author
-        --------------
+        Primary Author:
         Tylor Davis
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         None
         """
         return isinstance(other, Card) and self.rank == other.rank and self.suit == other.suit
@@ -249,12 +233,10 @@ class Card:
         """
         Allow Card to be used in sets/dicts.
 
-        Primary Author
-        --------------
+        Primary Author:
         Tylor Davis
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         None
         """
         return hash((self.rank, self.suit))
@@ -440,12 +422,10 @@ class Player:
         str
             Category label for the hand strength.
 
-        Primary Author
-        --------------
+        Primary Author:
         Juanita Asenso
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         None
         """
         return evaluate_hand_strength(self.hand)
@@ -559,12 +539,10 @@ class SpoonsGame:
         
         list[Player]
 
-        Primary Author
-        --------------
+        Primary Author:
         Juanita Asenso
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed: 
         None
         """
         return [p for p in self.players if p.name in self.scores]
@@ -573,12 +551,10 @@ class SpoonsGame:
         """
         Run the main game loop until only one player remains.
 
-        Primary Author
-        --------------
+        Primary Author:
         Ayushi Bhola
 
-        Techniques Claimed
-        ------------------
+        Techniques Claimed:
         None
         """
         print("=== SPOONS GAME ===")
@@ -671,12 +647,9 @@ def main():
     """
     Entry point for running the Spoons game.
 
-    Primary Author
-    --------------
-    Michael Miceli
+    Primary Author: Michael Miceli
 
-    Techniques Claimed
-    ------------------
+    Techniques Claimed:
     None
     """
     game = SpoonsGame()
